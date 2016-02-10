@@ -1,0 +1,27 @@
+{
+	"name": "crawler",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"dependencies": {
+		"request": "^2.69.0",
+		"simplecrawler": "^0.6.1"
+	},
+	"devDependencies": {
+		"gulp": "github:gulpjs/gulp#4.0",
+		"gulp-load-plugins": "*",
+		"gulp-tslint": "4.1.2",
+		"gulp-typescript": "2.10.0",
+		"tslint": "3.2.0-dev.1",
+		"gulp-sourcemaps": "1.6.0",
+		"typescript": "*",
+		"typings": "*",
+		"path-exists": "^2.1.0"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
+}
