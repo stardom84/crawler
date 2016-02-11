@@ -6,7 +6,7 @@ var Crawler = require('simplecrawler'),
 	path = require('path');
 
 var domain = 'www.musinsa.com',
-	paths = '/index.php?m=street&gender=f&_y=2015%2C2014&uid=23526',
+	paths = '/index.php?r=home&a=login&isSSL=&referer=&usessl=&id=sawadee&pw=sawadee1919&idpwsave=checked',
 	port = 80;
 // paths = '/index.php?m=street&gender=f&_y=2016%2C2015%2C2014&_mon=&p=',
 
@@ -33,14 +33,22 @@ var setConfig = () => {
 	myCrawler.discoverRegex.push(/\s(?:href|src)\s?=\s?(["']).*(jpg).*?\1/ig);
 
 	myCrawler.addFetchCondition((parsedURL:Object) => {
-		return parsedURL.path.match(/\.jpg/ig);
+		return parsedURL.path.match(/(\.jpg)/ig);
 	});
 };
 
 var setListeners = () => {
 	myCrawler
+		.on('addcookie ', (cookie:any) => {
+			console.log('cookie====>>>', cookie);
+		})
 		.on('fetchstart', (queueItem:Object, requestOptions:any) => {
 			console.log('start!');
+
+			requestOptions.method = 'POST';
+			requestOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+
+
 			console.log('queueItem', queueItem);
 			console.log('requestOptions', requestOptions);
 		})
@@ -56,6 +64,8 @@ var setListeners = () => {
 		})
 		.on('fetchcomplete', (queueItem:any, responseBuffer:any, response:any) => {
 			console.log('Completed fetching resource:', queueItem.url);
+
+			myCrawler.queueURL('http://www.musinsa.com/index.php?m=street&_y=2015&uid=23526');
 			// parse url
 			var parsed = url.parse(queueItem.url);
 
@@ -93,10 +103,10 @@ var setListeners = () => {
 
 		})
 		.on('complete', () => {
-			myCrawler = new Crawler(domain, paths + '2', port);
-			setListeners();
-			setConfig();
-			myCrawler.start();
+			/*myCrawler = new Crawler(domain, paths + '2', port);
+			 setListeners();
+			 setConfig();
+			 myCrawler.start();*/
 			console.log('Completed');
 		});
 };
