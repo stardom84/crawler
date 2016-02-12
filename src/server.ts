@@ -10,7 +10,7 @@ var domain = 'www.musinsa.com',
 	port = 80;
 // paths = '/index.php?m=street&gender=f&_y=2016%2C2015%2C2014&_mon=&p=',
 
-var myCrawler = new Crawler(domain, paths + '1', port);
+var myCrawler = new Crawler(domain, paths, port);
 var download = (uri:string, filename:string, dest:string, callback:Function) => {
 	request.head(uri, (err:Object, res:Object) => {
 		request(uri)
@@ -19,22 +19,24 @@ var download = (uri:string, filename:string, dest:string, callback:Function) => 
 	});
 };
 
+
 var setConfig = () => {
 	myCrawler.initialProtocol = 'http';
 	myCrawler.maxDepth = 2;
 	myCrawler.userAgent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.16 Safari/537.36';
 	myCrawler.scanSubdomains = true;
+	myCrawler.fetchWhitelistedMimeTypesBelowMaxDepth = true;
+	myCrawler.acceptCookies = true;
 	myCrawler.supportedMimeTypes = [];
 	myCrawler.supportedMimeTypes = [
 		/^text\/html/i,
-		/^application\/octet\-stream/i
+		/^application\/octet\-stream/i,
+		/^image\/jpeg/i,
+		/^image\/jpg/i,
+		/^image\/pjpeg/i,
 	];
 	myCrawler.discoverRegex = [];
 	myCrawler.discoverRegex.push(/\s(?:href|src)\s?=\s?(["']).*(jpg).*?\1/ig);
-
-	myCrawler.addFetchCondition((parsedURL:Object) => {
-		return parsedURL.path.match(/(\.jpg)/ig);
-	});
 };
 
 var setListeners = () => {
@@ -45,9 +47,10 @@ var setListeners = () => {
 		.on('fetchstart', (queueItem:Object, requestOptions:any) => {
 			console.log('start!');
 
-			requestOptions.method = 'POST';
-			requestOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-
+			if (queueItem.path.match(/id=sawadee/ig)) {
+				requestOptions.method = 'POST';
+				requestOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+			}
 
 			console.log('queueItem', queueItem);
 			console.log('requestOptions', requestOptions);
@@ -65,7 +68,10 @@ var setListeners = () => {
 		.on('fetchcomplete', (queueItem:any, responseBuffer:any, response:any) => {
 			console.log('Completed fetching resource:', queueItem.url);
 
-			myCrawler.queueURL('http://www.musinsa.com/index.php?m=street&_y=2015&uid=23526');
+			if (queueItem.path.match(/id=sawadee/ig)) {
+				myCrawler.queue.add('http', domain, port, '/index.php?m=street&_y=2015&uid=23526');
+			}
+
 			// parse url
 			var parsed = url.parse(queueItem.url);
 
